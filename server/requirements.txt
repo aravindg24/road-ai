@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pillow
+numpy
+opencv-python-headless
+ultralytics
+requests
+python-dotenv
+diffusers>=0.25.0
+transformers
+accelerate
+safetensors
+torch
+torchvision
