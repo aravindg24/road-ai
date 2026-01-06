@@ -401,3 +401,6 @@ For questions, issues, or contributions, please open an issue on GitHub.
 ⭐ Star this repo if you find it helpful!
 
 </div>
+
+
+[def]: #-architecture
