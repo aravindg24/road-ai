@@ -34,15 +34,15 @@
 ## 🎬 Demo
 
 ### Object Detection & Search
-![Search/Detect Interface](temp/WhatsApp%20Image%202025-12-02%20at%205.07.41%20PM.jpeg)
+![Search/Detect Interface](Outputs/WhatsApp%20Image%202025-12-02%20at%205.07.41%20PM.jpeg)
 *YOLOv8-powered object detection with bounding boxes and classification*
 
 ### Object Addition
-![Add Object Interface](temp/Web_Photo_Editor%20(2).jpg)
+![Add Object Interface](Outputs/Web_Photo_Editor%20(2).jpg)
 *AI-generated object insertion with natural scene integration*
 
 ### Object Replacement
-![Replace Object Interface](temp/Web_Photo_Editor%20(3).jpg)
+![Replace Object Interface](Outputs/Web_Photo_Editor%20(3).jpg)
 *Intelligent object replacement using Stable Diffusion 3*
 
 ---
