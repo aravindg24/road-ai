@@ -10,7 +10,7 @@
 
 **A state-of-the-art web application combining YOLOv8, Stable Diffusion 3, and OpenCV for intelligent AI-powered image editing.**
 
-[Features](#-key-features) • [Demo](#-demo) • [Installation](#-quick-start) • [Usage](#-usage) • [Architecture](#-architecture)
+[Features](#-key-features) • [Demo](#-demo) • [Installation](#-quick-start) • [Usage](#-usage) • [Architecture](#️-architecture)
 
 </div>
 
