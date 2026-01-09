@@ -41,6 +41,10 @@
 ![Add Object Interface](Outputs/Web_Photo_Editor%20(2).jpg)
 *AI-generated object insertion with natural scene integration*
 
+### Object Removal
+![Remove Object Interface](Outputs/Web_Photo_Editor%(1).jpg)
+*AI-generated Object Removal with natural Scene Integration*
+
 ### Object Replacement
 ![Replace Object Interface](Outputs/Web_Photo_Editor%20(3).jpg)
 *Intelligent object replacement using Stable Diffusion 3*
