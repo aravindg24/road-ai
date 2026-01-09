@@ -42,7 +42,7 @@
 *AI-generated object insertion with natural scene integration*
 
 ### Object Removal
-![Remove Object Interface](Outputs/Web_Photo_Editor%(1).jpg)
+![Remove Object Interface](Outputs/Web_Photo_Editor%20(1).jpg)
 *AI-generated Object Removal with natural Scene Integration*
 
 ### Object Replacement
