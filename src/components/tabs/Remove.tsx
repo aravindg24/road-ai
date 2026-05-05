@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Upload, Loader2, Trash2, Download } from "lucide-react";
+import { useApiConfig } from "../../contexts/ApiConfigContext";
 
 interface DetectionItem {
   id: number;
@@ -17,7 +18,6 @@ export default function Remove() {
   const [detections, setDetections] = useState<DetectionItem[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
   const [selectedBox, setSelectedBox] = useState<number[] | null>(null);
-  const [selectedDetectionId, setSelectedDetectionId] = useState<string | null>(null);
   const [imageHash, setImageHash] = useState<string | null>(null);
   const [clickPoint, setClickPoint] = useState<{ x: number; y: number } | null>(null);
   const [beforeImg, setBeforeImg] = useState<string | null>(null);
@@ -28,7 +28,7 @@ export default function Remove() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const { apiUrl: API_URL } = useApiConfig();
 
   // Redraw boxes when selected object changes
   useEffect(() => {
@@ -127,7 +127,6 @@ export default function Remove() {
       if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
         setSelected(det.id);
         setSelectedBox(det.box);
-        setSelectedDetectionId(det.detection_id || null);
         setClickPoint({ x, y });
         setStatus(`Selected: Object #${i + 1} - ${det.label}`);
         return;
@@ -136,7 +135,6 @@ export default function Remove() {
 
     // If clicked outside any box, deselect
     setSelected(null);
-    setSelectedDetectionId(null);
     setStatus(`${detections.length} objects detected. Click on any numbered object to select it.`);
   };
 
@@ -151,7 +149,6 @@ export default function Remove() {
       setAfterImg(null);
       setDetections([]);
       setSelected(null);
-      setSelectedDetectionId(null);
       setImageHash(null);
       setStatus("");
     }
@@ -180,7 +177,6 @@ export default function Remove() {
     setStatus("Detecting objects...");
     setDetections([]);
     setSelected(null);
-    setSelectedDetectionId(null);
     setImageHash(null);
     setAnnotatedImg(null);
 
@@ -234,8 +230,9 @@ export default function Remove() {
         img.src = beforeImg;
       }
     } catch (err) {
+      const message = err instanceof Error ? err.message : "Network error";
       console.error("Detection error:", err);
-      setStatus(`Error detecting objects: ${err.message || 'Network error'}`);
+      setStatus(`Error detecting objects: ${message}`);
     }
 
     setLoading(false);
@@ -326,8 +323,9 @@ export default function Remove() {
         setStatus("Failed to remove object - unexpected response");
       }
     } catch (err) {
+      const message = err instanceof Error ? err.message : "Network error";
       console.error("Remove error:", err);
-      setStatus(`Error removing object: ${err.message || 'Network error'}`);
+      setStatus(`Error removing object: ${message}`);
     }
 
     setLoading(false);

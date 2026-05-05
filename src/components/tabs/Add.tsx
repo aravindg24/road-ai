@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Upload, Plus, Download, Loader2, XCircle } from "lucide-react";
+import { useApiConfig } from "../../contexts/ApiConfigContext";
 
 export default function Add() {
   const [file, setFile] = useState<File | null>(null);
@@ -19,7 +20,7 @@ export default function Add() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const { apiUrl: API_URL } = useApiConfig();
 
   // Load and display image
   useEffect(() => {

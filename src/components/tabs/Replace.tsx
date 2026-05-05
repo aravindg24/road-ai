@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Replace as ReplaceIcon, Upload, Loader2, Download, Search, Palette, Cloud } from "lucide-react";
+import { useApiConfig } from "../../contexts/ApiConfigContext";
 
 type EditMode = "replace" | "color" | "transform";
 
@@ -56,7 +57,7 @@ export default function Replace() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const { apiUrl: API_URL } = useApiConfig();
 
   // Draw bounding boxes on canvas
   const drawBoundingBoxes = (imgElement: HTMLImageElement, dets: DetectionItem[], highlightIndex: number | null) => {

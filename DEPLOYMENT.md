@@ -1,188 +1,118 @@
-# Deployment Guide for Road-AI
+# Deployment Guide
 
-This guide provides instructions for deploying your React + Vite application to various platforms.
+This project is now set up for the path that fits your workflow best:
 
-## Prerequisites
+- `Netlify` for the React frontend
+- `Google Colab` temporarily for backend experiments
+- `Hugging Face Spaces` later for a persistent backend
 
-Before deploying, make sure your application builds successfully:
+## Recommended architecture
 
-```bash
-npm install
-npm run build
-```
+### Frontend
 
-## Option 1: Deploy to Vercel (Recommended - Easiest)
+- deploy the Vite app to Netlify
+- build command: `npm run build`
+- publish directory: `dist`
 
-### Method A: Using Vercel CLI
+The repo already includes [netlify.toml](/D:/road-ai/netlify.toml), so Netlify can use the default configuration directly.
 
-1. Install Vercel CLI globally:
-```bash
-npm install -g vercel
-```
+### Backend
 
-2. Login to Vercel:
-```bash
-vercel login
-```
+For now:
+- run the backend in Colab and expose it with a public HTTPS URL
 
-3. Deploy:
-```bash
-vercel
-```
+Later:
+- move the backend to Hugging Face Spaces using the root [Dockerfile](/D:/road-ai/Dockerfile)
 
-4. For production deployment:
-```bash
-vercel --prod
-```
+## Important frontend behavior
 
-### Method B: Using Vercel Dashboard
+The frontend no longer depends only on a build-time `VITE_API_URL`.
 
-1. Push your code to GitHub (if not already)
-2. Go to [vercel.com](https://vercel.com)
-3. Sign up/Login with GitHub
-4. Click "Add New Project"
-5. Import your GitHub repository
-6. Vercel will auto-detect Vite settings
-7. Click "Deploy"
+You can now:
+- deploy the frontend once
+- open the app
+- click the `Backend` control in the header
+- paste your current backend URL
 
-Your app will be live in minutes with a URL like `https://road-ai.vercel.app`
+That runtime override is saved in `localStorage`, which makes Colab and Hugging Face Spaces much easier to use.
 
-## Option 2: Deploy to Netlify
+## Netlify deployment
 
-### Method A: Using Netlify CLI
+### Option 1: Netlify dashboard
 
-1. Install Netlify CLI globally:
+1. Push this repo to GitHub.
+2. Go to [Netlify](https://www.netlify.com/).
+3. Create a new site from Git.
+4. Select this repository.
+5. Confirm these settings:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+6. Deploy.
+
+### Option 2: Netlify CLI
+
+1. Install the CLI:
+
 ```bash
 npm install -g netlify-cli
 ```
 
-2. Login to Netlify:
+2. Login:
+
 ```bash
 netlify login
 ```
 
-3. Initialize and deploy:
+3. Initialize the site:
+
 ```bash
 netlify init
 ```
 
-4. Follow the prompts and select:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
+4. For production deploys:
 
-5. For subsequent deployments:
 ```bash
-netlify deploy --prod
+netlify deploy --build --prod
 ```
 
-### Method B: Using Netlify Dashboard
+## Frontend environment options
 
-1. Push your code to GitHub (if not already)
-2. Go to [netlify.com](https://netlify.com)
-3. Sign up/Login with GitHub
-4. Click "Add new site" → "Import an existing project"
-5. Connect to GitHub and select your repository
-6. Configure build settings:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-7. Click "Deploy site"
+If you want a default backend URL at build time, create a local `.env` from [.env.example](/D:/road-ai/.env.example):
 
-Your app will be live with a URL like `https://road-ai.netlify.app`
-
-## Option 3: Deploy to GitHub Pages
-
-1. Install the `gh-pages` package:
-```bash
-npm install --save-dev gh-pages
+```env
+VITE_API_URL=https://your-default-backend-url
 ```
 
-2. Add these scripts to your `package.json`:
-```json
-"scripts": {
-  "predeploy": "npm run build",
-  "deploy": "gh-pages -d dist"
-}
-```
+This is optional now because the app also supports a runtime override in the header.
 
-3. Update `vite.config.ts` to include the base path:
-```typescript
-export default defineConfig({
-  base: '/road-ai/',
-  plugins: [react()],
-})
-```
+## Current free workflow
 
-4. Deploy:
-```bash
-npm run deploy
-```
+### While using Colab
 
-5. Enable GitHub Pages in your repository settings:
-   - Go to Settings → Pages
-   - Select branch: `gh-pages`
-   - Click Save
+1. Start the backend notebook.
+2. Expose it with ngrok.
+3. Copy the public HTTPS URL.
+4. Open the deployed Netlify app.
+5. Click the `Backend` control in the header.
+6. Paste the Colab URL and save.
 
-Your app will be available at `https://[username].github.io/road-ai/`
+No rebuild is needed when the Colab URL changes.
 
-## Option 4: Deploy to Render
+### After moving to Hugging Face Spaces
 
-1. Push your code to GitHub
-2. Go to [render.com](https://render.com)
-3. Sign up/Login with GitHub
-4. Click "New" → "Static Site"
-5. Connect your repository
-6. Configure:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-7. Click "Create Static Site"
+1. Deploy the backend Space.
+2. Copy the Space URL like `https://your-space-name.hf.space`.
+3. Paste that into the same frontend `Backend` control.
 
-## Environment Variables
+If you want that Space URL to be the long-term default, set it in Netlify as `VITE_API_URL` and redeploy once.
 
-If your app uses environment variables:
+## Hugging Face Spaces deployment
 
-### Vercel
-- Add them in the Vercel dashboard under "Settings" → "Environment Variables"
-- Or use `.env` files with prefix `VITE_`
+See [HUGGINGFACE_SPACES.md](/D:/road-ai/HUGGINGFACE_SPACES.md) for the backend packaging steps.
 
-### Netlify
-- Add them in the Netlify dashboard under "Site settings" → "Environment variables"
-- Or use `.env` files with prefix `VITE_`
+## Quick verification checklist
 
-## Continuous Deployment
-
-Both Vercel and Netlify offer automatic deployments:
-- Every push to your main branch triggers a production deployment
-- Pull requests get preview deployments with unique URLs
-- No additional configuration needed!
-
-## Troubleshooting
-
-### Build fails
-- Make sure `npm run build` works locally
-- Check that all dependencies are in `package.json` (not just devDependencies)
-- Review build logs for specific errors
-
-### Blank page after deployment
-- Check browser console for errors
-- Verify the base path is correctly configured
-- Ensure all routes have proper redirects (already configured in `netlify.toml` and `vercel.json`)
-
-### Routes not working (404 errors)
-- This is already handled by the configuration files
-- For Vercel: `vercel.json` handles SPA routing
-- For Netlify: `netlify.toml` includes redirect rules
-
-## Recommended: Vercel or Netlify
-
-Both platforms offer:
-- ✅ Free tier with generous limits
-- ✅ Automatic HTTPS
-- ✅ Global CDN
-- ✅ Automatic deployments from Git
-- ✅ Preview deployments for PRs
-- ✅ Easy custom domain setup
-- ✅ Excellent performance
-
-Choose Vercel if you might add Next.js features later.
-Choose Netlify if you need more flexibility with build plugins.
-
+- `npm run build` succeeds locally
+- Netlify site loads
+- backend root endpoint returns `{"message":"Road-AI Backend is running","status":"ok"}`
+- uploads work against the selected backend URL

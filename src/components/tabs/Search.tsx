@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Upload, Search as SearchIcon, Download, Image as ImageIcon, Code } from "lucide-react";
+import { useApiConfig } from "../../contexts/ApiConfigContext";
 
 interface Detection {
   label: string;
@@ -24,10 +25,8 @@ export default function Search() {
   const [detections, setDetections] = useState<Detection[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Use Vite env var VITE_API_URL if set (e.g. "http://localhost:8000"),
-  // otherwise default to local backend on port 8000.
-  const baseApi = ((import.meta as unknown) as { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL || "http://localhost:8000";
-  const API_URL = `${baseApi}/search`;
+  const { apiUrl } = useApiConfig();
+  const API_URL = `${apiUrl}/search`;
 
   
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {

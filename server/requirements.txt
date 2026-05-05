@@ -7,6 +7,8 @@ opencv-python-headless
 ultralytics
 requests
 python-dotenv
+imageio
+imageio-ffmpeg
 diffusers>=0.25.0
 transformers
 accelerate

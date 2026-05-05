@@ -1,4 +1,4 @@
-import { Search, Trash2, Plus, Replace as ReplaceIcon, X } from "lucide-react";
+import { Search, Trash2, Plus, Replace as ReplaceIcon, Film, X } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
 
@@ -14,6 +14,7 @@ const navItems = [
   { id: "remove", label: "Remove", icon: Trash2 },
   { id: "add", label: "Add", icon: Plus },
   { id: "replace", label: "Replace", icon: ReplaceIcon },
+  { id: "video", label: "Video", icon: Film },
 ];
 
 export default function Sidebar({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) {
