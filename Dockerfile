@@ -12,14 +12,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY server/requirements.txt /app/server/requirements.txt
+# Install dependencies first for better caching
+COPY server/requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-RUN pip install --upgrade pip && pip install -r /app/server/requirements.txt
+# Copy the server code
+COPY server/ .
 
-COPY server /app/server
-COPY yolov8m.pt /app/server/yolov8m.pt
-
-WORKDIR /app/server
+# Pre-download the YOLO model to the image
+# This ensures it is baked into the image and ready for the first request
+RUN python -c "from ultralytics import YOLO; YOLO('yolov8m.pt')"
 
 EXPOSE 7860
 

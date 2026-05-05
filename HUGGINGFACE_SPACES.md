@@ -37,10 +37,21 @@ After deployment, the backend URL will look like:
 
 `https://your-space-name.hf.space`
 
-Paste that full base URL into the frontend `Backend` control, or set it as Netlify env var `VITE_API_URL`.
+### 1. Connect via Frontend (Runtime)
+You can paste that full base URL into the **Backend** control in the top-right of the application.
+
+### 2. Connect via Netlify (Permanent)
+To make this the default for everyone:
+1. Go to your **Netlify Dashboard**.
+2. Select your project -> **Site settings**.
+3. Navigate to **Build & deploy** -> **Environment variables**.
+4. Add a variable:
+   - Key: `VITE_API_URL`
+   - Value: `https://your-space-name.hf.space`
+5. **Redeploy** your site (or trigger a new build) for the changes to take effect.
 
 ## Notes
 
-- Free Spaces are CPU-first, so video editing and diffusion pipelines may be slow
-- this is still a cleaner demo setup than rebuilding the frontend for every Colab tunnel
-- if you later move to a GPU-enabled Space, the frontend can stay exactly the same
+- **Docker Build:** The `Dockerfile` is configured to download the YOLO model during build, so the Space will be ready to serve requests immediately.
+- **Free Spaces:** Free Spaces are CPU-first, so video editing and detection might have a slight delay.
+- **Transience:** The `temp/` directory used for video processing is local to the container and will be cleared when the Space restarts.
