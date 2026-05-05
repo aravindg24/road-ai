@@ -1,3 +1,13 @@
+---
+title: Road AI
+emoji: 🚀
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # AutoVision: AI-Powered Image Editing Framework
 
 <div align="center">
@@ -34,19 +44,19 @@
 ## 🎬 Demo
 
 ### Object Detection & Search
-![Search/Detect Interface](Outputs/WhatsApp%20Image%202025-12-02%20at%205.07.41%20PM.jpeg)
+![Search/Detect Interface](Outputs/WhatsApp Image 2025-12-02 at 5.07.41 PM.jpeg)
 *YOLOv8-powered object detection with bounding boxes and classification*
 
 ### Object Addition
-![Add Object Interface](Outputs/Web_Photo_Editor%20(2).jpg)
+![Add Object Interface](Outputs/Web_Photo_Editor (2).jpg)
 *AI-generated object insertion with natural scene integration*
 
 ### Object Removal
-![Remove Object Interface](Outputs/Web_Photo_Editor%20(1).jpg)
+![Remove Object Interface](Outputs/Web_Photo_Editor (1).jpg)
 *AI-generated Object Removal with natural Scene Integration*
 
 ### Object Replacement
-![Replace Object Interface](Outputs/Web_Photo_Editor%20(3).jpg)
+![Replace Object Interface](Outputs/Web_Photo_Editor (3).jpg)
 *Intelligent object replacement using Stable Diffusion 3*
 
 ---
