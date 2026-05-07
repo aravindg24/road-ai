@@ -180,7 +180,7 @@ export default function Add() {
 
     try {
       const res = await fetch(`${API_URL}/add/apply`, {
-        method: "POST",
+        method: "POST", headers: { "ngrok-skip-browser-warning": "69420" },
         body: formData,
       });
 
@@ -346,3 +346,4 @@ export default function Add() {
     </div>
   );
 }
+

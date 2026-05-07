@@ -182,7 +182,7 @@ export default function Replace() {
 
     try {
       const res = await fetch(`${API_URL}/replace/detect`, {
-        method: "POST",
+        method: "POST", headers: { "ngrok-skip-browser-warning": "69420" },
         body: form,
       });
 
@@ -252,7 +252,7 @@ export default function Replace() {
 
     try {
       const res = await fetch(`${API_URL}/replace/apply`, {
-        method: "POST",
+        method: "POST", headers: { "ngrok-skip-browser-warning": "69420" },
         body: form,
       });
 
@@ -291,7 +291,7 @@ export default function Replace() {
 
     try {
       const res = await fetch(`${API_URL}/edit/color-detect`, {
-        method: "POST",
+        method: "POST", headers: { "ngrok-skip-browser-warning": "69420" },
         body: form,
       });
 
@@ -339,7 +339,7 @@ export default function Replace() {
 
     try {
       const res = await fetch(`${API_URL}/edit/color-change`, {
-        method: "POST",
+        method: "POST", headers: { "ngrok-skip-browser-warning": "69420" },
         body: form,
       });
 
@@ -384,7 +384,7 @@ export default function Replace() {
 
     try {
       const res = await fetch(`${API_URL}${endpoint}`, {
-        method: "POST",
+        method: "POST", headers: { "ngrok-skip-browser-warning": "69420" },
         body: form,
       });
 
@@ -811,3 +811,4 @@ export default function Replace() {
     </div>
   );
 }
+

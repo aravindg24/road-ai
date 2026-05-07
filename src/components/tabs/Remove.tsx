@@ -186,7 +186,7 @@ export default function Remove() {
     try {
       console.log(`Making detection request to: ${API_URL}/search`);
       const res = await fetch(`${API_URL}/search`, {
-        method: "POST",
+        method: "POST", headers: { "ngrok-skip-browser-warning": "69420" },
         body: form,
       });
 
@@ -294,7 +294,7 @@ export default function Remove() {
     try {
       console.log(`Making request to: ${API_URL}/remove/apply`);
       const res = await fetch(`${API_URL}/remove/apply`, {
-        method: "POST",
+        method: "POST", headers: { "ngrok-skip-browser-warning": "69420" },
         body: form,
       });
 
@@ -436,3 +436,4 @@ export default function Remove() {
     </div>
   );
 }
+

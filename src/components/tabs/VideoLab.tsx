@@ -100,7 +100,7 @@ export default function VideoLab() {
 
     try {
       const response = await fetch(`${API_URL}/video/analyze`, {
-        method: "POST",
+        method: "POST", headers: { "ngrok-skip-browser-warning": "69420" },
         body: formData,
       });
       const data = await response.json();
@@ -147,7 +147,7 @@ export default function VideoLab() {
 
     try {
       const response = await fetch(`${API_URL}/video/edit`, {
-        method: "POST",
+        method: "POST", headers: { "ngrok-skip-browser-warning": "69420" },
         body: formData,
       });
 
@@ -481,3 +481,4 @@ export default function VideoLab() {
     </div>
   );
 }
+

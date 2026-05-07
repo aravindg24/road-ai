@@ -49,7 +49,7 @@ export default function Search() {
     form.append("file", file);
 
     try {
-      const res = await fetch(API_URL, { method: "POST", body: form });
+      const res = await fetch(API_URL, { method: "POST", body: form, headers: { "ngrok-skip-browser-warning": "69420" } });
       const data: ApiResponse = await res.json();
 
       setCounts(data.counts);
@@ -241,3 +241,4 @@ export default function Search() {
     </div>
   );
 }
+
