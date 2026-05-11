@@ -21,7 +21,7 @@ from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from huggingface_hub import login
-from PIL import Image
+from PIL import Image, ImageFilter
 from ultralytics import YOLO
 
 try:
@@ -403,33 +403,38 @@ async def replace_apply(
     if not target_box:
         return {"error": "no_target_found"}
 
-    mask_np = create_mask_from_box(img_np, target_box, expand_ratio=0.50)
+    # Crop the object region with a modest expansion for context
+    mask_np = create_mask_from_box(img_np, target_box, expand_ratio=0.25)
+
     try:
         image_pil = Image.fromarray(img_np).convert("RGB")
         mask_pil = Image.fromarray(mask_np).convert("L")
-        w, h = image_pil.size
-        new_w, new_h = (w // 64) * 64, (h // 64) * 64
-        if (new_w, new_h) != (w, h):
-            image_pil = image_pil.resize((new_w, new_h), Image.LANCZOS)
-            mask_pil = mask_pil.resize((new_w, new_h), Image.LANCZOS)
+        orig_w, orig_h = image_pil.size
 
-        result = inpaint_pipe(
-            prompt=f"a {replacement}, complete object, photorealistic, highly detailed, sharp focus, perfect lighting, natural integration",
-            negative_prompt=f"blurry, distorted, {target_label}, old object, artifacts, cartoon, cut off, partial object",
-            image=image_pil,
-            mask_image=mask_pil,
+        # Use InstructPix2Pix for style-preserving, instruction-based replacement
+        # Resize to 512x512 as required by the model, then restore original size
+        ip2p_size = 512
+        image_resized = image_pil.resize((ip2p_size, ip2p_size), Image.LANCZOS)
+
+        edit_instruction = f"replace the {target_label} with {replacement}"
+        result_resized = instruct_pix2pix_pipe(
+            prompt=edit_instruction,
+            image=image_resized,
             num_inference_steps=50,
-            guidance_scale=9.5,
+            image_guidance_scale=1.5,
+            guidance_scale=7.5,
         ).images[0]
 
-        if (new_w, new_h) != (w, h):
-            result = result.resize((w, h), Image.LANCZOS)
+        # Composite: paste inpainted region back using the mask to preserve surroundings
+        result_full = result_resized.resize((orig_w, orig_h), Image.LANCZOS)
+        mask_blur = mask_pil.filter(ImageFilter.GaussianBlur(radius=6))
+        composited = Image.composite(result_full, image_pil, mask_blur)
 
         return {
-            "image_base64": np_image_to_base64_png(np.array(result)),
+            "image_base64": np_image_to_base64_png(np.array(composited)),
             "original": target_label,
             "replacement": replacement,
-            "method": "stable_diffusion_3",
+            "method": "instruct_pix2pix",
         }
     except Exception as e:
         return {"error": "failed", "detail": str(e)}
@@ -540,7 +545,7 @@ async def color_change(
     for i, det in enumerate(detections):
         box = det["box"]
         detected = get_dominant_color(img_np[box[1] : box[3], box[0] : box[2]])
-        if np.linalg.norm(detected - target_rgb) < tolerance * 4:
+        if np.linalg.norm(detected - target_rgb) < tolerance * 2:
             matching.append(det)
 
     if not matching:
@@ -595,46 +600,45 @@ async def scene_transform(
     except Exception as e:
         return {"error": "invalid_image", "detail": str(e)}
 
-    prompts = {
-        "snowy": ("snow covered scene, winter atmosphere, snowy weather, white snow", "summer, warm, dry"),
-        "rainy": ("rainy weather, wet surfaces, rain drops, puddles, overcast", "dry, sunny, clear"),
-        "foggy": ("heavy fog, misty atmosphere, low visibility, foggy weather", "clear, sunny, sharp"),
-        "sunny": ("bright sunny day, clear blue sky, strong sunlight, vibrant", "dark, cloudy, overcast"),
-        "cloudy": ("overcast sky, cloudy weather, gray clouds, diffused light", "sunny, clear sky"),
+    # InstructPix2Pix is better than SD3 inpainting for weather: it preserves
+    # scene geometry and object layout while applying the weather effect.
+    instructions = {
+        "snowy": "make it snowy, add snow on all surfaces and ground, winter weather",
+        "rainy": "make it rainy, add rain drops, wet reflective roads and puddles",
+        "foggy": "add thick fog and mist across the entire scene, reduce visibility",
+        "sunny": "make it a bright sunny day with clear blue sky and strong sunlight",
+        "cloudy": "make it overcast with dark gray clouds covering the sky, diffused light",
     }
 
-    if transformation.lower() not in prompts:
-        return {"error": "invalid_transformation", "available": list(prompts.keys())}
+    if transformation.lower() not in instructions:
+        return {"error": "invalid_transformation", "available": list(instructions.keys())}
 
-    p_add, n_add = prompts[transformation.lower()]
-    h, w, _ = img_np.shape
-    mask = cv2.GaussianBlur(np.ones((h, w), dtype=np.uint8) * 255, (21, 21), 10)
+    instruction = instructions[transformation.lower()]
 
     try:
         image_pil = Image.fromarray(img_np).convert("RGB")
-        mask_pil = Image.fromarray(mask).convert("L")
         orig_w, orig_h = image_pil.size
-        new_w, new_h = (orig_w // 64) * 64, (orig_h // 64) * 64
-        if (new_w, new_h) != (orig_w, orig_h):
-            image_pil = image_pil.resize((new_w, new_h), Image.LANCZOS)
-            mask_pil = mask_pil.resize((new_w, new_h), Image.LANCZOS)
+        image_resized = image_pil.resize((512, 512), Image.LANCZOS)
 
-        result = inpaint_pipe(
-            prompt=f"transform scene to {p_add}, maintain structure, photorealistic, high quality",
-            negative_prompt=f"{n_add}, distorted, artifacts, wrong style",
-            image=image_pil,
-            mask_image=mask_pil,
+        # Lower image_guidance_scale = more transformation; tuned by intensity
+        img_guidance = 1.8 - (intensity * 0.6)  # 1.2 at max intensity, 1.8 at min
+
+        result_resized = instruct_pix2pix_pipe(
+            prompt=instruction + ", photorealistic, high quality, natural lighting",
+            image=image_resized,
             num_inference_steps=int(30 + intensity * 20),
-            guidance_scale=7.0 + intensity * 5.0,
+            image_guidance_scale=img_guidance,
+            guidance_scale=7.5,
         ).images[0]
 
-        if (new_w, new_h) != (orig_w, orig_h):
-            result = result.resize((orig_w, orig_h), Image.LANCZOS)
+        result_full = result_resized.resize((orig_w, orig_h), Image.LANCZOS)
+        # Blend with original so intensity controls effect strength
+        blended = Image.blend(image_pil, result_full, alpha=min(1.0, intensity * 1.2))
 
         return {
-            "image_base64": np_image_to_base64_png(np.array(result)),
+            "image_base64": np_image_to_base64_png(np.array(blended)),
             "transformation": transformation,
-            "method": "scene_transformation",
+            "method": "instruct_pix2pix",
         }
     except Exception as e:
         return {"error": "failed", "detail": str(e)}
@@ -657,24 +661,55 @@ async def apply_lighting_filter(
         return {"error": "invalid_image", "detail": str(e)}
 
     try:
+        base = img_np.astype(np.float32)
+
         if lighting_filter == "red":
-            filtered = img_np.copy()
-            filtered[:, :, 1] = (filtered[:, :, 1] * 0.5).astype(np.uint8)
-            filtered[:, :, 2] = (filtered[:, :, 2] * 0.5).astype(np.uint8)
+            filtered = base.copy()
+            filtered[:, :, 1] *= 0.4
+            filtered[:, :, 2] *= 0.4
+            filtered = np.clip(filtered, 0, 255).astype(np.uint8)
         elif lighting_filter == "green":
-            filtered = img_np.copy()
-            filtered[:, :, 0] = (filtered[:, :, 0] * 0.5).astype(np.uint8)
-            filtered[:, :, 2] = (filtered[:, :, 2] * 0.5).astype(np.uint8)
+            filtered = base.copy()
+            filtered[:, :, 0] *= 0.4
+            filtered[:, :, 2] *= 0.4
+            filtered = np.clip(filtered, 0, 255).astype(np.uint8)
         elif lighting_filter == "blue":
-            filtered = img_np.copy()
-            filtered[:, :, 0] = (filtered[:, :, 0] * 0.5).astype(np.uint8)
-            filtered[:, :, 1] = (filtered[:, :, 1] * 0.5).astype(np.uint8)
+            filtered = base.copy()
+            filtered[:, :, 0] *= 0.4
+            filtered[:, :, 1] *= 0.4
+            filtered = np.clip(filtered, 0, 255).astype(np.uint8)
         elif lighting_filter == "black_and_white":
-            filtered = cv2.cvtColor(
-                cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY), cv2.COLOR_GRAY2RGB
-            )
+            # Luminance-weighted conversion with slight contrast boost
+            gray = 0.299 * base[:, :, 0] + 0.587 * base[:, :, 1] + 0.114 * base[:, :, 2]
+            gray = np.clip((gray - 128) * 1.15 + 128, 0, 255)
+            filtered = np.stack([gray, gray, gray], axis=2).astype(np.uint8)
+        elif lighting_filter == "golden_hour":
+            # Warm sunset: boost red/orange, reduce blue, slight brightness lift
+            filtered = base.copy()
+            filtered[:, :, 0] = np.clip(filtered[:, :, 0] * 1.25, 0, 255)
+            filtered[:, :, 1] = np.clip(filtered[:, :, 1] * 1.05, 0, 255)
+            filtered[:, :, 2] = np.clip(filtered[:, :, 2] * 0.55, 0, 255)
+            filtered = np.clip(filtered * 1.08, 0, 255).astype(np.uint8)
+        elif lighting_filter == "night":
+            # Dark scene: desaturate, darken, shift toward deep blue
+            gray = 0.299 * base[:, :, 0] + 0.587 * base[:, :, 1] + 0.114 * base[:, :, 2]
+            filtered = np.zeros_like(base)
+            filtered[:, :, 0] = np.clip(gray * 0.25 + base[:, :, 0] * 0.15, 0, 255)
+            filtered[:, :, 1] = np.clip(gray * 0.25 + base[:, :, 1] * 0.15, 0, 255)
+            filtered[:, :, 2] = np.clip(gray * 0.35 + base[:, :, 2] * 0.35, 0, 255)
+            filtered = np.clip(filtered * 0.55, 0, 255).astype(np.uint8)
+        elif lighting_filter == "cool":
+            # Cool/overcast daylight: pull down reds, lift blues slightly
+            filtered = base.copy()
+            filtered[:, :, 0] = np.clip(filtered[:, :, 0] * 0.82, 0, 255)
+            filtered[:, :, 1] = np.clip(filtered[:, :, 1] * 0.93, 0, 255)
+            filtered[:, :, 2] = np.clip(filtered[:, :, 2] * 1.18, 0, 255)
+            filtered = np.clip(filtered, 0, 255).astype(np.uint8)
         else:
-            return {"error": "invalid_filter", "available": ["red", "green", "blue", "BW"]}
+            return {
+                "error": "invalid_filter",
+                "available": ["red", "green", "blue", "black_and_white", "golden_hour", "night", "cool"],
+            }
 
         return {
             "image_base64": np_image_to_base64_png(filtered),

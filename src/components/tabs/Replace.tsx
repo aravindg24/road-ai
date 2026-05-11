@@ -18,7 +18,17 @@ interface DetectionItem {
 
 const WEATHER_OPTIONS = ["snowy", "rainy", "foggy", "sunny", "cloudy"];
 
-const LIGHTING_FILTERS = ["red", "green", "blue", "black_and_white"];
+const LIGHTING_FILTERS = ["red", "green", "blue", "black_and_white", "golden_hour", "night", "cool"];
+
+const LIGHTING_FILTER_LABELS: Record<string, string> = {
+  red: "Red",
+  green: "Green",
+  blue: "Blue",
+  black_and_white: "B&W",
+  golden_hour: "Golden Hour",
+  night: "Night",
+  cool: "Cool",
+};
 
 const COLORS = ["black", "white", "red", "blue", "green", "yellow", "gray", "silver"];
 
@@ -48,7 +58,7 @@ export default function Replace() {
   const [colorDetected, setColorDetected] = useState<boolean>(false);
 
   // Transform state
-  const [transformation, setTransformation] = useState<string>("sunset");
+  const [transformation, setTransformation] = useState<string>("sunny");
   const [intensity, setIntensity] = useState<number>(0.8);
   const [lightingFilter, setLightingFilter] = useState<string>("red");
   const [transformType, setTransformType] = useState<"weather" | "lighting">("weather");
@@ -748,7 +758,7 @@ export default function Replace() {
                         onClick={() => setLightingFilter(filter)}
                         className={`capitalize ${lightingFilter === filter ? "bg-purple-600 hover:bg-purple-700" : ""}`}
                       >
-                        {filter === "black_and_white" ? "B&W" : filter}
+                        {LIGHTING_FILTER_LABELS[filter] ?? filter}
                       </Button>
                     ))}
                   </div>
@@ -765,7 +775,7 @@ export default function Replace() {
                 ) : (
                   <>
                     {transformType === "weather" ? <Cloud className="mr-2 h-4 w-4" /> : <Palette className="mr-2 h-4 w-4" />}
-                    Apply {transformType === "weather" ? `"${transformation}" Weather` : `${lightingFilter === "black_and_white" ? "B&W" : lightingFilter} Filter`}
+                    Apply {transformType === "weather" ? `"${transformation}" Weather` : `${LIGHTING_FILTER_LABELS[lightingFilter] ?? lightingFilter} Filter`}
                   </>
                 )}
               </Button>
