@@ -1,12 +1,4 @@
----
-title: Road AI
-emoji: traffic_light
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-app_port: 7860
-pinned: false
----
+
 
 # Road AI / AutoVision
 
