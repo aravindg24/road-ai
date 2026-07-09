@@ -10,6 +10,45 @@ pinned: false
 
 # Road AI / AutoVision
 
+<div align="center">
+
+![Road AI](https://img.shields.io/badge/Road%20AI-Visual%20Editing-blue?style=for-the-badge)
+![React](https://img.shields.io/badge/React-19-61dafb?style=for-the-badge&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)
+![FastAPI](https://img.shields.io/badge/FastAPI-Python-009688?style=for-the-badge&logo=fastapi)
+![YOLOv8](https://img.shields.io/badge/YOLOv8-Detection-111827?style=for-the-badge)
+![Stable Diffusion](https://img.shields.io/badge/Stable%20Diffusion-Editing-8B5CF6?style=for-the-badge)
+
+<p><strong>An AI-powered visual editing platform for detecting, removing, adding, replacing, and transforming objects in images and videos.</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Problem</th>
+      <th>Solution</th>
+      <th>Key Workflows</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Manual object editing is slow, repetitive, and difficult to reproduce.</td>
+      <td>Road AI combines object detection, masking, generative editing, and media processing in one web interface.</td>
+      <td>Search, remove, add, replace, recolor, weather transform, and video lab.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  <a href="#the-problem">Problem</a> |
+  <a href="#the-solution">Solution</a> |
+  <a href="#demo-gallery">Demo</a> |
+  <a href="#architecture">Architecture</a> |
+  <a href="#quick-start">Quick Start</a> |
+  <a href="#api-endpoints">API</a>
+</p>
+
+</div>
+
 Road AI is an AI-powered image and video editing application for detecting, removing, adding, replacing, and transforming objects in visual media. It combines a React frontend with a FastAPI backend that runs computer vision and generative AI models such as YOLOv8, Stable Diffusion, and OpenCV-based processing.
 
 The project is designed as an interactive research prototype: upload an image or video, choose an editing workflow, send the media to the backend, and download the processed result.
@@ -45,31 +84,19 @@ The goal is to make advanced image editing workflows easier to test, demonstrate
 - Apply scene transformations such as snow, rain, fog, sun, and clouds.
 - Analyze and edit video clips with a scene-level prototype pipeline.
 
-## Demo Screens
+## Demo Gallery
 
-### Object Detection
+The demo gallery uses the current files in the `Outputs/` folder.
 
-![Search and detect interface](Outputs/WhatsApp%20Image%202025-12-02%20at%205.07.41%20PM.jpeg)
+| Workflow | Preview | Local filename |
+| --- | --- | --- |
+| Search and detect | ![Search and detect result](Outputs/Search-Detect.jpeg) | `Outputs/Search-Detect.jpeg` |
+| Add object | ![Add object result](Outputs/Add.jpg) | `Outputs/Add.jpg` |
+| Remove object | ![Remove object result](Outputs/Remove.jpg) | `Outputs/Remove.jpg` |
+| Remove object variation | ![Second remove object result](Outputs/Remove-2.jpg) | `Outputs/Remove-2.jpg` |
+| Replace object | ![Replace object result](Outputs/replace.jpg) | `Outputs/replace.jpg` |
 
-YOLOv8-powered object detection with bounding boxes and class counts.
-
-### Object Addition
-
-![Add object interface](Outputs/Web_Photo_Editor%20(2).jpg)
-
-AI-assisted object insertion inside a selected region.
-
-### Object Removal
-
-![Remove object interface](Outputs/Web_Photo_Editor%20(1).jpg)
-
-Object removal with background reconstruction.
-
-### Object Replacement
-
-![Replace object interface](Outputs/Web_Photo_Editor%20(3).jpg)
-
-Detected object replacement using text-guided image editing.
+These screenshots show the main image-editing workflows: object detection, AI-assisted insertion, object removal, and text-guided replacement.
 
 ## How It Works
 
